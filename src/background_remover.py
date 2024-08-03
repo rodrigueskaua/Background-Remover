@@ -11,6 +11,7 @@ def remove_background(input_folder, output_folder):
         os.makedirs(output_folder)
 
     processed_count = 0
+    messages = []
     for filename in os.listdir(input_folder):
         if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
             input_path = os.path.join(input_folder, filename)
@@ -19,13 +20,19 @@ def remove_background(input_folder, output_folder):
             
             try:
                 with Image.open(input_path) as img:
-                    img_no_bg = remove(img)
-                    img_no_bg.save(output_path, format='PNG')
+                  if img.mode != 'RGBA':
+                    img = img.convert('RGBA')
+                    
+                  img_no_bg = remove(img)
+                  img_no_bg.save(output_path, format='PNG')
                 
                 print(f'Processed {filename}')
+                messages.append(f'Processado {filename}')
                 processed_count += 1
             except Exception as e:
                 print(f'Erro ao processar {filename}: {e}')
+                messages.append(f'Erro ao processar {filename}: {e}')
     
     if processed_count == 0:
         print(f"Nenhuma imagem foi processada. Verifique se há arquivos de imagem em '{input_folder}'.")
+    return '\n'.join(messages)
