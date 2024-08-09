@@ -4,35 +4,38 @@
   margin: 0;
   padding: 0;  
   font-family: 'Poppins', sans-serif;   
-  color: #FFF;
+  color: var(--text-color);
 }
 
 /* Variaveis CSS */
 :root {
-  --primary: #f8f8f8;
-  --background: #161618;
-  --card-background: #222222;
+  --primary: #e2e2e231;
+  --background: #141414;
+  --text-color: #E2E8F0;
   --transition: background-color 0.20s ease-in-out;
-  --border: 2px solid var(--primary);
+  --border: 2px solid #262626;
   --radius: 11px;
   --border-grey:2px solid #646464;
 }
 
 body{
+  min-width: 100vw;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  
-  background-color: var(--background);
-  min-width: 100vw;
-  min-height: 100vh;
+  background: var(--background);
+  background-image: repeating-linear-gradient(45deg, rgba(66, 66, 66, 0.24) 0, rgba(66, 66, 66, 0.24) 1px, var(--background) 0, var(--background) 50%);
+  opacity: 0.8;
+  background-size: 10px 10px;
 }
 
 .container {
-  background-color: var(--card-background);
+  background: var(--background);
   padding: 50px 30px;
-  border-radius: 8px;
-  box-shadow: 0px 0px 30.6px 0px #ffffff2c;
+  border: 1px solid #262626;
+  box-shadow: 0px 0px 0px 8px #191919;
+  border-radius: 12px;
 }
 
 /* Buttons */
@@ -45,12 +48,12 @@ body{
 }
 
 .btn-primary{
-  background-color: transparent!important;
+  background-color: #1A1A1A!important;
 }
 
 .btn-primary:hover{
   background-color: var(--primary)!important;
-  color: #161618;
+  color: var(--text-color);
 }
 
 .btn-secondary{
@@ -87,7 +90,7 @@ h1 {
 
 .container .form-control:focus {
   border-color: var(--primary); 
-  box-shadow: 0px 0px 18.6px 0px var(--primary);
+  box-shadow: 0px 0px 10px 0px var(--primary);
 }
 
 .container textarea.form-control{
