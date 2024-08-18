@@ -2,6 +2,7 @@ from flask import jsonify
 import os
 from werkzeug.utils import secure_filename
 from src.background_remover import remove_background
+from src.downloader import download_image
 
 def allowed_file(filename, allowed_extensions):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
@@ -22,6 +23,13 @@ def process_files(files, upload_folder, allowed_extensions):
         if file and allowed_file(file.filename, allowed_extensions):
             filename = secure_filename(file.filename)
             file.save(os.path.join(upload_folder, filename))
+
+def process_urls(urls, upload_folder):
+    for url in urls:
+        url = url.strip()
+        if url:
+            filename = os.path.join(upload_folder, os.path.basename(url) + '.png')
+            download_image(url, filename)
             
 def convert_images(upload_folder, output_folder):
     try:

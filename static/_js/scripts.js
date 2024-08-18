@@ -37,3 +37,34 @@ document.getElementById('convert-button').addEventListener('click', function () 
     showAlert('error', 'Erro ao enviar imagens.');
   });
 });
+
+document.getElementById('convert-urls-button').addEventListener('click', function () {
+  let urlsForm = document.getElementById('urls-form');
+  let formData = new FormData(urlsForm);
+
+  Swal.fire({
+    title: 'Aguarde...',
+    text: 'Estamos processando suas URLs.',
+    icon: 'info',
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  fetch(urlsForm.action, {
+    method: 'POST',
+    body: formData
+  }).then(response => response.json()).then(data => {
+    Swal.close();
+    if (data.success) {
+      showAlert('success', data.message);
+    } else {
+      showAlert('error', data.message);
+    }
+  }).catch(error => {
+    Swal.close();
+    showAlert('error', 'Erro ao enviar URLs.');
+  });
+});

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from src.background_remover import remove_background
 from config import Config
-from src.utils import create_folders, convert_images, process_files
+from src.utils import create_folders, convert_images, process_files, process_urls
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -19,7 +19,11 @@ def background_remover():
             files = request.files.getlist('files[]')
             process_files(files, app.config['UPLOAD_FOLDER'], app.config['ALLOWED_EXTENSIONS'])
             return convert_images(app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER'])
-
+        
+        elif 'urls' in request.form:
+            urls = request.form.get('urls').split('\n')
+            process_urls(urls, app.config['UPLOAD_FOLDER'])
+            return convert_images(app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER']) 
     return render_template('index.html')
 
 if __name__ == '__main__':
