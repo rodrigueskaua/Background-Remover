@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for
+from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, flash
 import os
 import webbrowser
 import subprocess
@@ -8,8 +8,8 @@ from src.downloader import download_images_from_txt
 import sys
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['OUTPUT_FOLDER'] = 'output_images'
+app.config['UPLOAD_FOLDER'] = os.path.join('uploads', 'original')
+app.config['OUTPUT_FOLDER'] = os.path.join('uploads', 'processed')
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 for folder in [app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER']]:
@@ -41,8 +41,7 @@ def background_remover():
                 for url in urls:
                     f.write(f"{url.strip()}\n")
 
-            download_folder = app.config['UPLOAD_FOLDER']
-            download_images_from_txt(txt_file, download_folder)
+            download_images_from_txt(txt_file, app.config['UPLOAD_FOLDER'])
             os.remove(txt_file)
             return jsonify({'success': True, 'message': 'Imagens baixadas com sucesso!'})
 
@@ -52,13 +51,14 @@ def background_remover():
 def convert_images():
     try:
         remove_background(app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER'])
-        # Delete the files in the upload folder after conversion
+        
+        # Deleta os arquivos na pasta de upload após a conversão
         for filename in os.listdir(app.config['UPLOAD_FOLDER']):
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             if os.path.isfile(file_path):
                 os.remove(file_path)
 
-        # Open the output folder
+        # Abre a pasta de saída
         open_folder(app.config['OUTPUT_FOLDER'])
 
         return jsonify({'success': True, 'message': 'Imagens convertidas com sucesso!'})
@@ -70,13 +70,13 @@ def download_file(filename):
     return send_from_directory(app.config['OUTPUT_FOLDER'], filename)
 
 def open_folder(path):
-    """Open the folder in the file explorer."""
+    """Abre a pasta no explorador de arquivos."""
     if os.name == 'nt':  # Windows
         os.startfile(path)
-    elif os.name == 'posix':  # macOS or Linux
+    elif os.name == 'posix':  # macOS ou Linux
         subprocess.call(['open' if sys.platform == 'darwin' else 'xdg-open', path])
 
 if __name__ == '__main__':
-    # Open the default web browser
+    # Abre o navegador padrão
     webbrowser.open('http://localhost:5000/')
     app.run(debug=True)
