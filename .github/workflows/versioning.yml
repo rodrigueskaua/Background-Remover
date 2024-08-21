@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure Git
         run: |
@@ -37,10 +37,12 @@ jobs:
           echo "Version incremented to $NEW_VERSION"
 
       - name: Create and push new tag
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           NEW_VERSION=${{ env.NEW_VERSION }}
           git tag $NEW_VERSION
-          git push origin $NEW_VERSION
+          git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} $NEW_VERSION
 
       - name: Create GitHub release
         uses: actions/create-release@v1
@@ -49,3 +51,5 @@ jobs:
           release_name: "Release ${{ env.NEW_VERSION }}"
           draft: false
           prerelease: false
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
