@@ -36,6 +36,11 @@ jobs:
           echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
           echo "Version incremented to $NEW_VERSION"
 
+      - name: Debug environment
+        run: |
+          echo "GH_TOKEN=${GH_TOKEN}"
+          echo "GITHUB_REPOSITORY=${{ github.repository }}"
+
       - name: Create and push new tag
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
