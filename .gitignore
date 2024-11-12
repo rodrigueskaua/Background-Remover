@@ -1,2 +1,5 @@
-/downloaded_images
-/output_images
+__pycache__/
+*.pyc
+instance/
+uploads/original/
+uploads/processed/
