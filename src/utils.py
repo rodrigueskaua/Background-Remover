@@ -1,5 +1,6 @@
 from flask import jsonify
 import os
+import subprocess
 from werkzeug.utils import secure_filename
 from src.background_remover import remove_background
 from src.downloader import download_image
@@ -40,3 +41,15 @@ def convert_images(upload_folder, output_folder):
         return jsonify({'success': True, 'message': 'Imagens convertidas com sucesso!'})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
+
+def open_processed_folder():
+    folder_path = os.path.join(os.getcwd(), 'uploads', 'processed')
+    
+    if not os.path.exists(folder_path):
+        print(f"Pasta não encontrada: {folder_path}")
+        return
+    
+    try:
+        subprocess.call(['xdg-open', folder_path])
+    except Exception as e:
+        print(f"Erro ao tentar abrir a pasta: {e}")
