@@ -3,3 +3,4 @@ rembg
 requests
 flask
 onnxruntime
+gunicorn
