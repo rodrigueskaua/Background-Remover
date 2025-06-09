@@ -1,55 +1,52 @@
-from flask import jsonify
 import os
-import subprocess
 from werkzeug.utils import secure_filename
-from src.background_remover import remove_background
-from src.downloader import download_image
+from .downloader import download_image
+from .background_remover import process_single_image
 
 def allowed_file(filename, allowed_extensions):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
-def create_folders(folders):
-    for folder in folders:
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-
-def clean_upload_folder(upload_folder):
-    for filename in os.listdir(upload_folder):
-        file_path = os.path.join(upload_folder, filename)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-
-def process_files(files, upload_folder, allowed_extensions):
+def save_uploaded_files(files, destination_folder, allowed_extensions):
+    saved_paths = []
     for file in files:
-        if file and allowed_file(file.filename, allowed_extensions):
+        if file and file.filename and allowed_file(file.filename, allowed_extensions):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(upload_folder, filename))
+            file_path = os.path.join(destination_folder, filename)
+            file.save(file_path)
+            saved_paths.append(file_path)
+    return saved_paths
 
-def process_urls(urls, upload_folder):
-    for url in urls:
+def save_url_images(urls, destination_folder, allowed_extensions):
+    saved_paths = []
+    for i, url in enumerate(filter(None, urls)):
         url = url.strip()
-        if url:
-            filename = os.path.join(upload_folder, os.path.basename(url) + '.png')
-            download_image(url, filename)
+        if not url:
+            continue
             
-def convert_images(upload_folder, output_folder):
-    try:
-        remove_background(upload_folder, output_folder)
+        base_name = os.path.basename(url).split('?')[0]
+        if not allowed_file(base_name, allowed_extensions):
+            base_name = f"url_image_{i}.png"
+            
+        filename = secure_filename(base_name)
+        file_path = os.path.join(destination_folder, filename)
+        if download_image(url, file_path):
+            saved_paths.append(file_path)
+            
+    return saved_paths
 
-        clean_upload_folder(upload_folder)
+def process_images_in_paths(input_paths, output_folder):
+    processed_paths = []
+    for input_path in input_paths:
+        filename = os.path.basename(input_path)
+        output_filename = os.path.splitext(filename)[0] + '.png'
+        output_path = os.path.join(output_folder, output_filename)
+        
+        try:
+             # 2. Chame a nova função com o nome correto
+             process_single_image(input_path, output_path)
+             processed_paths.append(output_path)
+        except Exception as e:
+            print(f"Erro ao processar {filename}: {e}")
 
-        return jsonify({'success': True, 'message': 'Imagens convertidas com sucesso!'})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
-
-def open_processed_folder():
-    folder_path = os.path.join(os.getcwd(), 'uploads', 'processed')
-    
-    if not os.path.exists(folder_path):
-        print(f"Pasta não encontrada: {folder_path}")
-        return
-    
-    try:
-        subprocess.call(['xdg-open', folder_path])
-    except Exception as e:
-        print(f"Erro ao tentar abrir a pasta: {e}")
+    return processed_paths
